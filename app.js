@@ -7,7 +7,7 @@ const app = express(); // Creiamo un'istanza dell'applicazione Express
 const port = process.env.SERVER_PORT || 3000;
 
 // Middleware per instradare tutte le richieste a /movies verso movieRouter
-app.use('/movies', movieRouter);
+app.use('/movies', movieRouter); 
 
 // Avviamo il server e lo mettiamo in ascolto sulla porta specificata
 app.listen(port, () => {
