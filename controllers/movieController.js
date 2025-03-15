@@ -17,7 +17,7 @@ function index(req, res) {
     });
 }
 
-// Funzione per ottenere un singolo film tramite ID (da implementare)
+
 // Funzione per ottenere un singolo film tramite ID
 function show(req, res) {
     const { id } = req.params;
@@ -70,9 +70,36 @@ function show(req, res) {
     });
 }
 
-// Funzione per eliminare un film tramite ID (da implementare)
+// Funzione per eliminare un film tramite ID 
 function destroy(req, res) {
-    // TODO: Implementare la logica per eliminare un film dal database
+
+    const { id } = req.params;
+    
+    const movieSql = 'DELETE FROM movies WHERE id = ?';
+
+    // Eliminiamo il film 
+
+    connection.query(movieSql, [id], (err, results) => {
+        if (err) {
+            return res.status(500).json({
+                error: 'Database error'
+            });
+        }
+
+        // Se nessuna riga è stata eliminata, significa che il film non esiste già o è stato già cancellato
+        if (results.affectedRows === 0) {
+            return res.status(404).json({
+                status: 404,
+                error: 'Not Found',
+                message: 'film non trovato o già eliminato'
+            });
+        }
+
+        res.json({
+            status: 204,
+            message: 'Post eliminato con successo'
+        });
+    })
 }
 
 // Esportiamo le funzioni per poterle usare in altri file
