@@ -1,5 +1,6 @@
 import connection from '../data/db.js'; // Importiamo la connessione al database
 
+
 // Funzione per ottenere tutti i film dal database
 function index(req, res) {
     const sql = "SELECT * FROM movies"; // Query SQL per selezionare tutti i film
@@ -13,7 +14,18 @@ function index(req, res) {
         }
 
         // Se la query va a buon fine, restituiamo i risultati in formato JSON
-        res.json(results);
+        // res.json(results);
+
+        console.log(req.imagePath);
+
+        const movies = results.map((movie) => { 
+          return {
+            ...movie,
+            image: req.imagePath + movie.image,
+          };
+        });
+    
+        res.json(movies);
     });
 }
 
@@ -65,7 +77,12 @@ function show(req, res) {
 
             // Aggiungiamo le recensioni al film
             movie.reviews = reviewsResults;
-            res.json(movie);
+            
+            res.json({
+                ...movie,
+                image: req.imagePath + movie.image
+            });
+            
         });
     });
 }
