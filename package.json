@@ -6,10 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "watch": "node --env-file=.env --watch app.js "
+    "watch": "node --env-file=.env --watch app.js"
   },
   "keywords": [],
   "author": "Vincenzo Ferraro",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5"
+  }
 }
