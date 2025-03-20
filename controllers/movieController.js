@@ -111,6 +111,29 @@ function storeReview(req, res) {
     });
 }
 
+//funzione per Aggiungere un nuovo film 
+function store(req, res) {
+
+    const { title, director, genre, relase_year, abstract } = req.body;
+
+    const imageName = `${req.file.filename}`;
+
+    const sql = `INSERT INTO movies
+                    (title, director, image, genre, relase_year, abstract )
+                    VALUES (?,?,?,?,?,?)
+                 `;
+    connection.query(sql[title, director, imageName, genre, relase_year, abstract], (err, results) => {
+        if(err) return res.status(500).json({
+            error: 'database Error Store'
+        });
+        res.status(201).json({
+            status: "success",
+            message: "Film Aggiunto con successo",
+            id: results.insertId
+        });
+    });
+}
+
 // Funzione per eliminare un film
 function destroy(req, res) {
     const { id } = req.params;  // Estraiamo l'ID del film dai parametri della richiesta
@@ -147,5 +170,6 @@ export {
     index,
     show,
     destroy,
-    storeReview
+    storeReview,
+    store
 };
