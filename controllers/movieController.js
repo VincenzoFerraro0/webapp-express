@@ -32,6 +32,13 @@ function index(req, res) {
 function show(req, res) {
     const { id } = req.params;  // Estraiamo l'ID del film dai parametri della richiesta
 
+    const moviesSql = `
+        SELECT M.*, ROUND (AVG(R.vote)) AS average_vote
+        FROM movies M
+        LEFT JOIN reviews R
+        ON R.movie_id = M.id
+        WHERE M.id = ?`
+
     // Controllo preliminare per assicurarsi che l'ID sia un numero valido
     if (isNaN(id)) {
         return res.status(400).json({
@@ -42,7 +49,7 @@ function show(req, res) {
     }
 
     // Query per ottenere i dettagli del film specifico in base all'ID
-    const moviesSql = `SELECT * FROM movies WHERE id = ?`;
+    
 
     connection.query(moviesSql, [id], (err, movieResults) => {
         if (err) {
@@ -75,12 +82,18 @@ function show(req, res) {
             }
 
             // Aggiungiamo le recensioni al film
-            movie.reviews = reviewsResults;
+            // movie.reviews = reviewsResults;
+
+            // movie.average_vote = parseInt(movie.average_vote)
 
             // Restituiamo il film con le recensioni in formato JSON
             res.json({
                 ...movie,  // Manteniamo tutte le proprietà del film
-                image: req.imagePath + movie.image  // Aggiungiamo il percorso dell'immagine
+                image: req.imagePath + movie.image,  // Aggiungiamo il percorso dell'immagine
+                average_vote: parseInt(movie.average_vote),
+                reviews: reviewsResults
+
+
             });
         });
     });
@@ -113,22 +126,32 @@ function storeReview(req, res) {
 
 //funzione per Aggiungere un nuovo film 
 function store(req, res) {
+    console.log('Dati ricevuti:', req.body);
+    console.log('File ricevuto:', req.file);
 
-    const { title, director, genre, relase_year, abstract } = req.body;
+    const { title, director, genre, release_year, abstract } = req.body;
+    const imageName = req.file ? req.file.filename : null;
 
-    const imageName = `${req.file.filename}`;
+    // Log per verificare i dati ricevuti
+    console.log('Dati ricevuti:', { title, director, genre, release_year, abstract, imageName });
 
-    const sql = `INSERT INTO movies
-                    (title, director, image, genre, relase_year, abstract )
-                    VALUES (?,?,?,?,?,?)
-                 `;
-    connection.query(sql[title, director, imageName, genre, relase_year, abstract], (err, results) => {
-        if(err) return res.status(500).json({
-            error: 'database Error Store'
-        });
+    if (!imageName) {
+        return res.status(400).json({ error: 'Immagine mancante' });
+    }
+
+    const sql = "INSERT INTO movies (title, director, image, genre, release_year, abstract) VALUES (?,?,?,?,?,?)";
+
+    connection.query(sql, [title, director, imageName, genre, release_year, abstract], (err, results) => {
+        if (err) {
+            console.error('Errore nella query:', err);  // Log dell'errore della query
+            return res.status(500).json({
+                error: 'Database Error Store'
+            });
+        }
+
         res.status(201).json({
             status: "success",
-            message: "Film Aggiunto con successo",
+            message: "Film aggiunto con successo",
             id: results.insertId
         });
     });
